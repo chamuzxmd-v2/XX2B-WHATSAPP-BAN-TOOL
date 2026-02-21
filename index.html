@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Ban Tool</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            padding-top: 40px;
+        }
+        .container {
+            max-width: 800px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .btn-danger {
+            background: linear-gradient(to right, #ff416c, #ff4b2b);
+            border: none;
+            padding: 12px 30px;
+            font-size: 18px;
+            border-radius: 50px;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">🔧 WhatsApp Number Ban System</h1>
+        <p class="text-center mb-4">Enter a WhatsApp number with country code (e.g., +94123456789) and click "BAN NUMBER". The system will flood WhatsApp's spam detection with reports.</p>
+        
+        <div class="mb-3">
+            <label for="number" class="form-label">Target WhatsApp Number:</label>
+<input type="text" class="form-control" id="number" placeholder="+94123456789" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="count" class="form-label">Number of Reports (Default: 50):</label>
+            <input type="number" class="form-control" id="count" value="50" min="1" max="1000">
+        </div>
+        
+        <div class="text-center">
+            <button id="banBtn" class="btn btn-danger btn-lg">🚀 BAN NUMBER</button>
+        </div>
+        
+        <div id="result" class="mt-4 text-center"></div>
+        
+        <div class="progress mt-4" style="height: 25px; display: none;" id="progressBarContainer">
+            <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%">0%</div>
+        </div>
+        
+        <div class="footer">
+            DEVELOPED BY XX3B | © 2026 WhatsApp Ban Tool
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('banBtn').addEventListener('click', async function() {
+            const number = document.getElementById('number').value.trim();
+            const count = document.getElementById('count').value;
+            const resultDiv = document.getElementById('result');
+            const progressBarContainer = document.getElementById('progressBarContainer');
+            const progressBar = document.getElementById('progressBar');
+            
+            if (!number || !number.startsWith('+')) {
+                resultDiv.innerHTML = '<div class="alert alert-danger">Enter valid WhatsApp number with country code (e.g., +94123456789)</div>';
+                return;
+            }
+            
+            // Disable button and show progress
+            this.disabled = true;
+            this.textContent = 'BANNING...';
+            progressBarContainer.style.display = 'block';
+            resultDiv.innerHTML = '<div class="alert alert-info">Starting ban process... This may take a few minutes.</div>';
+            
+            try {
+                const response = await fetch('/ban', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ number: number, count: parseInt(count) })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Update progress bar
+                    let progress = 0;
+                    const interval = setInterval(() => {
+                        progress += 10;
+                        progressBar.style.width = progress + '%';
+                        progressBar.textContent = progress + '%';
+                        if (progress >= 100) {
+                            clearInterval(interval);
+                            resultDiv.innerHTML = `<div class="alert alert-success"><h4>✅ SUCCESS!</h4><p>Number ${number} reported ${data.reports_sent} times to WhatsApp.</p><p>Ban typically takes 5-60 minutes.</p></div>`;
+                        }
+                    }, 300);
+                } else {
+                    resultDiv.innerHTML = `<div class="alert alert-danger">Error: ${data.error}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="alert alert-danger">Network error: ${error.message}</div>`;
+            } finally {
+                this.disabled = false;
+                this.textContent = '🚀 BAN NUMBER';
+            }
+        });
+    </script>
+</body>
+</html>
+
